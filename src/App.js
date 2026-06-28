@@ -72,6 +72,7 @@ function useInView(threshold = 0.15) {
     );
     if (ref.current) obs.observe(ref.current);
     return () => obs.disconnect();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   return [ref, visible];
 }
@@ -94,12 +95,10 @@ function FadeIn({ children, delay = 0 }) {
 
 export default function Portfolio() {
   const [active, setActive] = useState("Home");
-  const [menuOpen, setMenuOpen] = useState(false);
   const [copied, setCopied] = useState(false);
 
   const scrollTo = (id) => {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
-    setMenuOpen(false);
   };
 
   useEffect(() => {
@@ -572,7 +571,7 @@ export default function Portfolio() {
                 ["Location", "Hyderabad, India"],
                 ["Experience", `${EXP} Years`],
                 ["Degree", "B.E. – Electronics & Communication"],
-                ["College", "Sri Venkateswara college of engineering and technology(SVCET)-Chittoor (2018–2022)"],
+                ["College", "SVCET, Hyderabad (2018–2022)"],
                 ["Email", "tirupathinaidu199@gmail.com"],
                 ["Phone", "+91 6303201364"],
               ].map(([label, value]) => (
