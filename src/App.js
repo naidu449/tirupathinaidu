@@ -62,7 +62,7 @@ const EXPERIENCE = [
   },
 ];
 
-function useInView(threshold = 0.15) {
+function useInView(threshold = 0.1) {
   const ref = useRef(null);
   const [visible, setVisible] = useState(false);
   useEffect(() => {
@@ -84,7 +84,7 @@ function FadeIn({ children, delay = 0 }) {
       ref={ref}
       style={{
         opacity: visible ? 1 : 0,
-        transform: visible ? "translateY(0)" : "translateY(28px)",
+        transform: visible ? "translateY(0)" : "translateY(24px)",
         transition: `opacity 0.6s ease ${delay}s, transform 0.6s ease ${delay}s`,
       }}
     >
@@ -93,12 +93,28 @@ function FadeIn({ children, delay = 0 }) {
   );
 }
 
+function useWindowWidth() {
+  const [width, setWidth] = useState(window.innerWidth);
+  useEffect(() => {
+    const onResize = () => setWidth(window.innerWidth);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+  return width;
+}
+
 export default function Portfolio() {
   const [active, setActive] = useState("Home");
   const [copied, setCopied] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const width = useWindowWidth();
+
+  const isMobile = width < 768;
+  const isTablet = width >= 768 && width < 1024;
 
   const scrollTo = (id) => {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+    setMobileMenuOpen(false);
   };
 
   useEffect(() => {
@@ -116,455 +132,212 @@ export default function Portfolio() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Close mobile menu on outside click
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+    const close = () => setMobileMenuOpen(false);
+    document.addEventListener("click", close);
+    return () => document.removeEventListener("click", close);
+  }, [mobileMenuOpen]);
+
   const copyEmail = () => {
     navigator.clipboard.writeText("tirupathinaidu199@gmail.com");
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const styles = {
-    root: {
-      fontFamily: "'Segoe UI', system-ui, sans-serif",
-      background: "#0f1623",
-      color: "#e8edf5",
-      minHeight: "100vh",
-      margin: 0,
-    },
-    nav: {
-      position: "fixed",
-      top: 0,
-      width: "100%",
-      zIndex: 100,
-      background: "rgba(15,22,35,0.95)",
-      backdropFilter: "blur(10px)",
-      borderBottom: "1px solid #1e2d45",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "space-between",
-      padding: "0 5%",
-      height: 64,
-      boxSizing: "border-box",
-    },
-    logo: {
-      fontWeight: 700,
-      fontSize: 18,
-      color: "#4a9eff",
-      letterSpacing: 1,
-      cursor: "pointer",
-    },
-    navLinks: {
-      display: "flex",
-      gap: 32,
-      listStyle: "none",
-      margin: 0,
-      padding: 0,
-    },
-    navLink: (isActive) => ({
-      cursor: "pointer",
-      fontSize: 14,
-      fontWeight: 500,
-      color: isActive ? "#4a9eff" : "#8fa3be",
-      borderBottom: isActive ? "2px solid #4a9eff" : "2px solid transparent",
-      paddingBottom: 2,
-      transition: "color 0.2s, border-color 0.2s",
-      letterSpacing: 0.5,
-    }),
-    hero: {
-      minHeight: "100vh",
-      display: "flex",
-      flexDirection: "column",
-      justifyContent: "center",
-      padding: "80px 10% 40px",
-      background: "linear-gradient(135deg, #0f1623 0%, #0d1f36 60%, #0f1623 100%)",
-      position: "relative",
-      overflow: "hidden",
-    },
-    heroAccent: {
-      position: "absolute",
-      top: "20%",
-      right: "10%",
-      width: 320,
-      height: 320,
-      borderRadius: "50%",
-      background: "radial-gradient(circle, rgba(74,158,255,0.08) 0%, transparent 70%)",
-      pointerEvents: "none",
-    },
-    heroEyebrow: {
-      fontSize: 13,
-      fontWeight: 600,
-      color: "#4a9eff",
-      letterSpacing: 3,
-      textTransform: "uppercase",
-      marginBottom: 16,
-    },
-    heroName: {
-      fontSize: "clamp(2.2rem, 5vw, 3.8rem)",
-      fontWeight: 800,
-      lineHeight: 1.1,
-      color: "#e8edf5",
-      marginBottom: 12,
-    },
-    heroTitle: {
-      fontSize: "clamp(1.1rem, 2.5vw, 1.5rem)",
-      fontWeight: 400,
-      color: "#8fa3be",
-      marginBottom: 24,
-    },
-    heroBadges: {
-      display: "flex",
-      flexWrap: "wrap",
-      gap: 10,
-      marginBottom: 36,
-    },
-    badge: {
-      background: "rgba(74,158,255,0.1)",
-      border: "1px solid rgba(74,158,255,0.25)",
-      color: "#4a9eff",
-      borderRadius: 4,
-      padding: "4px 12px",
-      fontSize: 12,
-      fontWeight: 600,
-      letterSpacing: 0.5,
-    },
-    heroCta: {
-      display: "flex",
-      gap: 16,
-      flexWrap: "wrap",
-    },
-    btnPrimary: {
-      background: "#4a9eff",
-      color: "#0f1623",
-      border: "none",
-      borderRadius: 6,
-      padding: "12px 28px",
-      fontWeight: 700,
-      fontSize: 14,
-      cursor: "pointer",
-      letterSpacing: 0.5,
-      transition: "background 0.2s, transform 0.15s",
-    },
-    btnOutline: {
-      background: "transparent",
-      color: "#4a9eff",
-      border: "1.5px solid #4a9eff",
-      borderRadius: 6,
-      padding: "11px 28px",
-      fontWeight: 700,
-      fontSize: 14,
-      cursor: "pointer",
-      letterSpacing: 0.5,
-      transition: "background 0.2s",
-    },
-    section: {
-      padding: "90px 10%",
-    },
-    sectionAlt: {
-      padding: "90px 10%",
-      background: "#0b1220",
-    },
-    sectionLabel: {
-      fontSize: 11,
-      fontWeight: 700,
-      color: "#4a9eff",
-      letterSpacing: 4,
-      textTransform: "uppercase",
-      marginBottom: 8,
-    },
-    sectionTitle: {
-      fontSize: "clamp(1.6rem, 3vw, 2.2rem)",
-      fontWeight: 800,
-      color: "#e8edf5",
-      marginBottom: 48,
-    },
-    divider: {
-      width: 48,
-      height: 3,
-      background: "#4a9eff",
-      borderRadius: 2,
-      marginBottom: 40,
-      marginTop: -36,
-    },
-    aboutGrid: {
-      display: "grid",
-      gridTemplateColumns: "1fr 1fr",
-      gap: 48,
-      alignItems: "start",
-    },
-    aboutText: {
-      lineHeight: 1.9,
-      color: "#8fa3be",
-      fontSize: 15,
-      marginBottom: 20,
-    },
-    infoRow: {
-      display: "flex",
-      gap: 16,
-      alignItems: "flex-start",
-      marginBottom: 14,
-    },
-    infoLabel: {
-      fontSize: 12,
-      fontWeight: 700,
-      color: "#4a9eff",
-      minWidth: 90,
-      letterSpacing: 0.5,
-      paddingTop: 1,
-    },
-    infoValue: {
-      color: "#c5d3e8",
-      fontSize: 14,
-    },
-    skillsGrid: {
-      display: "grid",
-      gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
-      gap: 20,
-    },
-    skillCard: {
-      background: "#131e2f",
-      border: "1px solid #1e2d45",
-      borderRadius: 10,
-      padding: "22px 24px",
-      transition: "border-color 0.2s",
-    },
-    skillCardTitle: {
-      fontSize: 12,
-      fontWeight: 700,
-      color: "#4a9eff",
-      letterSpacing: 2,
-      textTransform: "uppercase",
-      marginBottom: 14,
-    },
-    skillPills: {
-      display: "flex",
-      flexWrap: "wrap",
-      gap: 8,
-    },
-    skillPill: {
-      background: "rgba(74,158,255,0.07)",
-      border: "1px solid #1e3a5a",
-      borderRadius: 4,
-      padding: "4px 10px",
-      fontSize: 12,
-      color: "#c5d3e8",
-    },
-    projectsGrid: {
-      display: "grid",
-      gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
-      gap: 24,
-    },
-    projectCard: {
-      background: "#131e2f",
-      border: "1px solid #1e2d45",
-      borderRadius: 12,
-      padding: "28px 26px",
-      display: "flex",
-      flexDirection: "column",
-      gap: 14,
-      transition: "border-color 0.2s, transform 0.2s",
-    },
-    projectNum: {
-      fontSize: 11,
-      fontWeight: 700,
-      color: "#4a9eff",
-      letterSpacing: 3,
-    },
-    projectName: {
-      fontSize: 17,
-      fontWeight: 700,
-      color: "#e8edf5",
-      lineHeight: 1.3,
-    },
-    projectDesc: {
-      fontSize: 13,
-      color: "#8fa3be",
-      lineHeight: 1.8,
-    },
-    projectTech: {
-      display: "flex",
-      flexWrap: "wrap",
-      gap: 6,
-      marginTop: 4,
-    },
-    techTag: {
-      background: "rgba(74,158,255,0.1)",
-      border: "1px solid rgba(74,158,255,0.2)",
-      borderRadius: 3,
-      padding: "2px 8px",
-      fontSize: 11,
-      color: "#4a9eff",
-      fontWeight: 600,
-    },
-    highlightList: {
-      listStyle: "none",
-      padding: 0,
-      margin: "4px 0 0",
-    },
-    highlightItem: {
-      fontSize: 12,
-      color: "#6b8aaa",
-      padding: "3px 0",
-      paddingLeft: 14,
-      position: "relative",
-    },
-    expCard: {
-      background: "#131e2f",
-      border: "1px solid #1e2d45",
-      borderRadius: 12,
-      padding: "32px 36px",
-      display: "flex",
-      gap: 40,
-      alignItems: "flex-start",
-    },
-    expLeft: {
-      minWidth: 200,
-    },
-    expRole: {
-      fontSize: 20,
-      fontWeight: 800,
-      color: "#e8edf5",
-      marginBottom: 6,
-    },
-    expCompany: {
-      fontSize: 14,
-      fontWeight: 600,
-      color: "#4a9eff",
-      marginBottom: 6,
-    },
-    expDuration: {
-      fontSize: 12,
-      color: "#6b8aaa",
-      fontWeight: 500,
-    },
-    expPoints: {
-      listStyle: "none",
-      padding: 0,
-      margin: 0,
-      flex: 1,
-    },
-    expPoint: {
-      fontSize: 14,
-      color: "#8fa3be",
-      lineHeight: 1.8,
-      padding: "6px 0",
-      paddingLeft: 20,
-      position: "relative",
-      borderBottom: "1px solid #1a2740",
-    },
-    contactGrid: {
-      display: "grid",
-      gridTemplateColumns: "1fr 1fr",
-      gap: 48,
-      alignItems: "start",
-    },
-    contactInfo: {
-      display: "flex",
-      flexDirection: "column",
-      gap: 20,
-    },
-    contactItem: {
-      display: "flex",
-      alignItems: "center",
-      gap: 16,
-      background: "#131e2f",
-      border: "1px solid #1e2d45",
-      borderRadius: 10,
-      padding: "18px 22px",
-    },
-    contactIcon: {
-      fontSize: 20,
-      minWidth: 32,
-      textAlign: "center",
-    },
-    contactLabel: {
-      fontSize: 11,
-      color: "#6b8aaa",
-      fontWeight: 600,
-      letterSpacing: 1,
-      textTransform: "uppercase",
-      marginBottom: 3,
-    },
-    contactValue: {
-      fontSize: 14,
-      color: "#c5d3e8",
-      fontWeight: 500,
-    },
-    footer: {
-      textAlign: "center",
-      padding: "32px 10%",
-      borderTop: "1px solid #1e2d45",
-      color: "#6b8aaa",
-      fontSize: 13,
-    },
-  };
+  const px = isMobile ? "5%" : isTablet ? "7%" : "10%";
+  const sectionPy = isMobile ? "60px" : "90px";
 
   return (
-    <div style={styles.root}>
-      {/* NAV */}
-      <nav style={styles.nav}>
-        <div style={styles.logo} onClick={() => scrollTo("Home")}>TG.</div>
-        <ul style={styles.navLinks}>
-          {NAV_LINKS.map((l) => (
-            <li key={l} style={styles.navLink(active === l)} onClick={() => scrollTo(l)}>
-              {l}
-            </li>
-          ))}
-        </ul>
-      </nav>
+    <div style={{ fontFamily: "'Segoe UI', system-ui, sans-serif", background: "#0f1623", color: "#e8edf5", minHeight: "100vh", margin: 0 }}>
 
-      {/* HERO */}
-      <section id="Home" style={styles.hero}>
-        <div style={styles.heroAccent} />
-        <div style={{ opacity: 0, animation: "fadeUp 0.7s 0.1s forwards" }}>
-          <p style={styles.heroEyebrow}>👋 Open to new opportunities</p>
-          <h1 style={styles.heroName}>Tirupathinaidu<br />Gullapalli</h1>
-          <p style={styles.heroTitle}>I build secure, fast backend systems with Java & Spring Boot</p>
-          <div style={styles.heroBadges}>
-            {["Spring Boot", "REST API", "PostgreSQL", "JWT & AES-256", "Agile"].map((b) => (
-              <span key={b} style={styles.badge}>{b}</span>
+      {/* ── GLOBAL STYLES ── */}
+      <style>{`
+        *, *::before, *::after { box-sizing: border-box; }
+        body { margin: 0; padding: 0; }
+        @keyframes fadeUp {
+          from { opacity: 0; transform: translateY(30px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+        .nav-link:hover { color: #4a9eff !important; }
+        .btn:hover { opacity: 0.88; transform: translateY(-1px); }
+        .card:hover { border-color: #2e4a6a !important; transform: translateY(-2px); transition: all 0.2s; }
+        .hamburger:hover { opacity: 0.75; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #0f1623; }
+        ::-webkit-scrollbar-thumb { background: #1e3a5a; border-radius: 3px; }
+      `}</style>
+
+      {/* ── NAV ── */}
+      <nav style={{
+        position: "fixed", top: 0, width: "100%", zIndex: 200,
+        background: "rgba(15,22,35,0.97)", backdropFilter: "blur(12px)",
+        borderBottom: "1px solid #1e2d45",
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+        padding: `0 ${px}`, height: 60, boxSizing: "border-box",
+      }}>
+        <div
+          onClick={() => scrollTo("Home")}
+          style={{ fontWeight: 800, fontSize: 20, color: "#4a9eff", letterSpacing: 1, cursor: "pointer" }}
+        >
+          TG.
+        </div>
+
+        {/* Desktop nav */}
+        {!isMobile && (
+          <ul style={{ display: "flex", gap: isTablet ? 20 : 32, listStyle: "none", margin: 0, padding: 0 }}>
+            {NAV_LINKS.map((l) => (
+              <li
+                key={l}
+                className="nav-link"
+                onClick={() => scrollTo(l)}
+                style={{
+                  cursor: "pointer", fontSize: 14, fontWeight: 500,
+                  color: active === l ? "#4a9eff" : "#8fa3be",
+                  borderBottom: active === l ? "2px solid #4a9eff" : "2px solid transparent",
+                  paddingBottom: 2, transition: "color 0.2s",
+                }}
+              >
+                {l}
+              </li>
+            ))}
+          </ul>
+        )}
+
+        {/* Hamburger */}
+        {isMobile && (
+          <button
+            className="hamburger"
+            onClick={(e) => { e.stopPropagation(); setMobileMenuOpen((v) => !v); }}
+            style={{
+              background: "none", border: "none", cursor: "pointer",
+              display: "flex", flexDirection: "column", gap: 5, padding: 4,
+            }}
+            aria-label="Toggle menu"
+          >
+            <span style={{ width: 24, height: 2, background: mobileMenuOpen ? "#4a9eff" : "#8fa3be", display: "block", transition: "all 0.2s", transform: mobileMenuOpen ? "rotate(45deg) translate(5px,5px)" : "none" }} />
+            <span style={{ width: 24, height: 2, background: mobileMenuOpen ? "transparent" : "#8fa3be", display: "block", transition: "all 0.2s" }} />
+            <span style={{ width: 24, height: 2, background: mobileMenuOpen ? "#4a9eff" : "#8fa3be", display: "block", transition: "all 0.2s", transform: mobileMenuOpen ? "rotate(-45deg) translate(5px,-5px)" : "none" }} />
+          </button>
+        )}
+
+        {/* Mobile dropdown */}
+        {isMobile && mobileMenuOpen && (
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              position: "absolute", top: 60, left: 0, right: 0,
+              background: "#0d1a2b", borderBottom: "1px solid #1e2d45",
+              zIndex: 300, padding: "12px 0",
+            }}
+          >
+            {NAV_LINKS.map((l) => (
+              <div
+                key={l}
+                onClick={() => scrollTo(l)}
+                style={{
+                  padding: "14px 6%", fontSize: 15, fontWeight: 500,
+                  color: active === l ? "#4a9eff" : "#c5d3e8",
+                  borderLeft: active === l ? "3px solid #4a9eff" : "3px solid transparent",
+                  cursor: "pointer", transition: "color 0.2s",
+                }}
+              >
+                {l}
+              </div>
             ))}
           </div>
-          <div style={styles.heroCta}>
-            <button style={styles.btnPrimary} onClick={() => scrollTo("Contact")}>
-              Get in Touch
-            </button>
-            <button style={styles.btnOutline} onClick={() => scrollTo("Projects")}>
-              View Projects
-            </button>
-            <button onClick={() => window.open("https://www.linkedin.com/in/tirupathinaidu-gullapalli-033b6b3a1", "_blank")} style={{ ...styles.btnOutline, display: "inline-flex", alignItems: "center", gap: 6 }}>
-              💼 LinkedIn
-            </button>
-            <button onClick={() => window.open("https://github.com/naidu449", "_blank")} style={{ ...styles.btnOutline, display: "inline-flex", alignItems: "center", gap: 6 }}>
-              🐙 GitHub
-            </button>
+        )}
+      </nav>
+
+      {/* ── HERO ── */}
+      <section id="Home" style={{
+        minHeight: "100vh", display: "flex", flexDirection: "column",
+        justifyContent: "center", padding: `80px ${px} 40px`,
+        background: "linear-gradient(135deg, #0f1623 0%, #0d1f36 60%, #0f1623 100%)",
+        position: "relative", overflow: "hidden",
+      }}>
+        <div style={{
+          position: "absolute", top: "15%", right: isMobile ? "-10%" : "8%",
+          width: isMobile ? 200 : 340, height: isMobile ? 200 : 340, borderRadius: "50%",
+          background: "radial-gradient(circle, rgba(74,158,255,0.07) 0%, transparent 70%)",
+          pointerEvents: "none",
+        }} />
+        <div style={{ opacity: 0, animation: "fadeUp 0.7s 0.1s forwards", maxWidth: 700 }}>
+          <p style={{ fontSize: 12, fontWeight: 700, color: "#4a9eff", letterSpacing: 3, textTransform: "uppercase", marginBottom: 14 }}>
+            👋 Open to new opportunities
+          </p>
+          <h1 style={{
+            fontSize: isMobile ? "2.2rem" : isTablet ? "3rem" : "3.8rem",
+            fontWeight: 800, lineHeight: 1.1, color: "#e8edf5", margin: "0 0 12px",
+          }}>
+            Tirupathinaidu<br />Gullapalli
+          </h1>
+          <p style={{ fontSize: isMobile ? "1rem" : "1.25rem", color: "#8fa3be", marginBottom: 24 }}>
+            I build secure, fast backend systems with Java & Spring Boot
+          </p>
+
+          {/* Badges */}
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 32 }}>
+            {["Spring Boot", "REST API", "PostgreSQL", "JWT & AES-256", "Agile"].map((b) => (
+              <span key={b} style={{
+                background: "rgba(74,158,255,0.1)", border: "1px solid rgba(74,158,255,0.25)",
+                color: "#4a9eff", borderRadius: 4, padding: "4px 12px",
+                fontSize: 12, fontWeight: 600, letterSpacing: 0.5,
+              }}>{b}</span>
+            ))}
+          </div>
+
+          {/* CTA buttons */}
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
+            {[
+              { label: "Get in Touch", primary: true, action: () => scrollTo("Contact") },
+              { label: "View Projects", primary: false, action: () => scrollTo("Projects") },
+              { label: "💼 LinkedIn", primary: false, action: () => window.open("https://www.linkedin.com/in/tirupathinaidu-gullapalli-033b6b3a1", "_blank") },
+              { label: "🐙 GitHub", primary: false, action: () => window.open("https://github.com/naidu449", "_blank") },
+            ].map(({ label, primary, action }) => (
+              <button
+                key={label}
+                className="btn"
+                onClick={action}
+                style={{
+                  background: primary ? "#4a9eff" : "transparent",
+                  color: primary ? "#0f1623" : "#4a9eff",
+                  border: primary ? "none" : "1.5px solid #4a9eff",
+                  borderRadius: 6, padding: isMobile ? "10px 20px" : "12px 26px",
+                  fontWeight: 700, fontSize: isMobile ? 13 : 14,
+                  cursor: "pointer", letterSpacing: 0.4,
+                  transition: "all 0.2s",
+                }}
+              >
+                {label}
+              </button>
+            ))}
           </div>
         </div>
-        <style>{`
-          @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-          }
-          li:hover { color: #4a9eff !important; }
-          button:hover { opacity: 0.88; transform: translateY(-1px); }
-        `}</style>
       </section>
 
-      {/* ABOUT */}
-      <section id="About" style={styles.sectionAlt}>
+      {/* ── ABOUT ── */}
+      <section id="About" style={{ padding: `${sectionPy} ${px}`, background: "#0b1220" }}>
         <FadeIn>
-          <p style={styles.sectionLabel}>A little about me</p>
-          <h2 style={styles.sectionTitle}>About Me</h2>
-          <div style={styles.divider} />
-          <div style={styles.aboutGrid}>
+          <p style={{ fontSize: 11, fontWeight: 700, color: "#4a9eff", letterSpacing: 4, textTransform: "uppercase", marginBottom: 6 }}>A little about me</p>
+          <h2 style={{ fontSize: isMobile ? "1.7rem" : "2.2rem", fontWeight: 800, color: "#e8edf5", marginBottom: 4 }}>About Me</h2>
+          <div style={{ width: 48, height: 3, background: "#4a9eff", borderRadius: 2, marginBottom: 40 }} />
+
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr",
+            gap: isMobile ? 32 : 48,
+          }}>
             <div>
-              <p style={styles.aboutText}>
-                Hey! I'm Tirupathinaidu, a Java developer from Hyderabad with {EXP} years of experience. I've spent most of that time building backend systems for things like Aadhaar authentication, digital payments, and KYC — basically, stuff that needs to be reliable and secure because real people depend on it.
-              </p>
-              <p style={styles.aboutText}>
-                I really enjoy the problem-solving side of this work — whether it's figuring out why an API is slow, designing a cleaner data flow, or debugging a production issue at odd hours. Spring Boot and PostgreSQL are where I feel most at home, and I take security seriously after working on financial and government systems.
-              </p>
-              <p style={styles.aboutText}>
-                Right now I'm looking for my next role — ideally somewhere I can keep growing, work on meaningful problems, and be part of a team that takes quality seriously. If that sounds like your team, let's talk!
-              </p>
+              {[
+                `Hey! I'm Tirupathinaidu, a Java developer from Hyderabad with ${EXP} years of experience. I've spent most of that time building backend systems for things like Aadhaar authentication, digital payments, and KYC — basically, stuff that needs to be reliable and secure because real people depend on it.`,
+                "I really enjoy the problem-solving side of this work — whether it's figuring out why an API is slow, designing a cleaner data flow, or debugging a production issue at odd hours. Spring Boot and PostgreSQL are where I feel most at home, and I take security seriously after working on financial and government systems.",
+                "Right now I'm looking for my next role — ideally somewhere I can keep growing, work on meaningful problems, and be part of a team that takes quality seriously. If that sounds like your team, let's talk!",
+              ].map((text, i) => (
+                <p key={i} style={{ lineHeight: 1.9, color: "#8fa3be", fontSize: 15, marginBottom: 18 }}>{text}</p>
+              ))}
             </div>
             <div>
               {[
@@ -575,9 +348,9 @@ export default function Portfolio() {
                 ["Email", "tirupathinaidu199@gmail.com"],
                 ["Phone", "+91 6303201364"],
               ].map(([label, value]) => (
-                <div key={label} style={styles.infoRow}>
-                  <span style={styles.infoLabel}>{label}</span>
-                  <span style={styles.infoValue}>{value}</span>
+                <div key={label} style={{ display: "flex", gap: 14, alignItems: "flex-start", marginBottom: 14 }}>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: "#4a9eff", minWidth: 90, letterSpacing: 0.5, paddingTop: 1 }}>{label}</span>
+                  <span style={{ color: "#c5d3e8", fontSize: 14, wordBreak: "break-word" }}>{value}</span>
                 </div>
               ))}
             </div>
@@ -585,20 +358,31 @@ export default function Portfolio() {
         </FadeIn>
       </section>
 
-      {/* SKILLS */}
-      <section id="Skills" style={styles.section}>
+      {/* ── SKILLS ── */}
+      <section id="Skills" style={{ padding: `${sectionPy} ${px}` }}>
         <FadeIn>
-          <p style={styles.sectionLabel}>Things I work with</p>
-          <h2 style={styles.sectionTitle}>My Skills</h2>
-          <div style={styles.divider} />
-          <div style={styles.skillsGrid}>
+          <p style={{ fontSize: 11, fontWeight: 700, color: "#4a9eff", letterSpacing: 4, textTransform: "uppercase", marginBottom: 6 }}>Things I work with</p>
+          <h2 style={{ fontSize: isMobile ? "1.7rem" : "2.2rem", fontWeight: 800, color: "#e8edf5", marginBottom: 4 }}>My Skills</h2>
+          <div style={{ width: 48, height: 3, background: "#4a9eff", borderRadius: 2, marginBottom: 40 }} />
+
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: isMobile ? "1fr" : isTablet ? "repeat(2, 1fr)" : "repeat(3, 1fr)",
+            gap: 18,
+          }}>
             {Object.entries(SKILLS).map(([cat, items], i) => (
               <FadeIn key={cat} delay={i * 0.07}>
-                <div style={styles.skillCard}>
-                  <p style={styles.skillCardTitle}>{cat}</p>
-                  <div style={styles.skillPills}>
+                <div className="card" style={{
+                  background: "#131e2f", border: "1px solid #1e2d45",
+                  borderRadius: 10, padding: "20px 22px",
+                }}>
+                  <p style={{ fontSize: 11, fontWeight: 700, color: "#4a9eff", letterSpacing: 2, textTransform: "uppercase", marginBottom: 14, marginTop: 0 }}>{cat}</p>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
                     {items.map((s) => (
-                      <span key={s} style={styles.skillPill}>{s}</span>
+                      <span key={s} style={{
+                        background: "rgba(74,158,255,0.07)", border: "1px solid #1e3a5a",
+                        borderRadius: 4, padding: "4px 10px", fontSize: 12, color: "#c5d3e8",
+                      }}>{s}</span>
                     ))}
                   </div>
                 </div>
@@ -608,26 +392,38 @@ export default function Portfolio() {
         </FadeIn>
       </section>
 
-      {/* PROJECTS */}
-      <section id="Projects" style={styles.sectionAlt}>
+      {/* ── PROJECTS ── */}
+      <section id="Projects" style={{ padding: `${sectionPy} ${px}`, background: "#0b1220" }}>
         <FadeIn>
-          <p style={styles.sectionLabel}>Stuff I've actually built</p>
-          <h2 style={styles.sectionTitle}>My Projects</h2>
-          <div style={styles.divider} />
-          <div style={styles.projectsGrid}>
+          <p style={{ fontSize: 11, fontWeight: 700, color: "#4a9eff", letterSpacing: 4, textTransform: "uppercase", marginBottom: 6 }}>Stuff I've actually built</p>
+          <h2 style={{ fontSize: isMobile ? "1.7rem" : "2.2rem", fontWeight: 800, color: "#e8edf5", marginBottom: 4 }}>My Projects</h2>
+          <div style={{ width: 48, height: 3, background: "#4a9eff", borderRadius: 2, marginBottom: 40 }} />
+
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: isMobile ? "1fr" : isTablet ? "repeat(2, 1fr)" : "repeat(3, 1fr)",
+            gap: 22,
+          }}>
             {PROJECTS.map((p, i) => (
               <FadeIn key={p.name} delay={i * 0.1}>
-                <div style={styles.projectCard}>
-                  <h3 style={styles.projectName}>{p.name}</h3>
-                  <p style={styles.projectDesc}>{p.description}</p>
-                  <div style={styles.projectTech}>
+                <div className="card" style={{
+                  background: "#131e2f", border: "1px solid #1e2d45",
+                  borderRadius: 12, padding: "26px 24px",
+                  display: "flex", flexDirection: "column", gap: 14, height: "100%",
+                }}>
+                  <h3 style={{ fontSize: 17, fontWeight: 700, color: "#e8edf5", margin: 0, lineHeight: 1.3 }}>{p.name}</h3>
+                  <p style={{ fontSize: 13, color: "#8fa3be", lineHeight: 1.85, margin: 0, flexGrow: 1 }}>{p.description}</p>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
                     {p.tech.map((t) => (
-                      <span key={t} style={styles.techTag}>{t}</span>
+                      <span key={t} style={{
+                        background: "rgba(74,158,255,0.1)", border: "1px solid rgba(74,158,255,0.2)",
+                        borderRadius: 3, padding: "2px 8px", fontSize: 11, color: "#4a9eff", fontWeight: 600,
+                      }}>{t}</span>
                     ))}
                   </div>
-                  <ul style={styles.highlightList}>
+                  <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
                     {p.highlights.map((h) => (
-                      <li key={h} style={styles.highlightItem}>
+                      <li key={h} style={{ fontSize: 12, color: "#6b8aaa", padding: "3px 0 3px 14px", position: "relative" }}>
                         <span style={{ position: "absolute", left: 0, color: "#4a9eff" }}>›</span>
                         {h}
                       </li>
@@ -640,22 +436,32 @@ export default function Portfolio() {
         </FadeIn>
       </section>
 
-      {/* EXPERIENCE */}
-      <section id="Experience" style={styles.section}>
+      {/* ── EXPERIENCE ── */}
+      <section id="Experience" style={{ padding: `${sectionPy} ${px}` }}>
         <FadeIn>
-          <p style={styles.sectionLabel}>Where I've worked</p>
-          <h2 style={styles.sectionTitle}>Work Experience</h2>
-          <div style={styles.divider} />
+          <p style={{ fontSize: 11, fontWeight: 700, color: "#4a9eff", letterSpacing: 4, textTransform: "uppercase", marginBottom: 6 }}>Where I've worked</p>
+          <h2 style={{ fontSize: isMobile ? "1.7rem" : "2.2rem", fontWeight: 800, color: "#e8edf5", marginBottom: 4 }}>Work Experience</h2>
+          <div style={{ width: 48, height: 3, background: "#4a9eff", borderRadius: 2, marginBottom: 40 }} />
+
           {EXPERIENCE.map((e) => (
-            <div key={e.company} style={styles.expCard}>
-              <div style={styles.expLeft}>
-                <p style={styles.expRole}>{e.role}</p>
-                <p style={styles.expCompany}>{e.company}</p>
-                <p style={styles.expDuration}>{e.duration}</p>
+            <div key={e.company} style={{
+              background: "#131e2f", border: "1px solid #1e2d45", borderRadius: 12,
+              padding: isMobile ? "24px 20px" : "32px 36px",
+              display: "flex", flexDirection: isMobile ? "column" : "row",
+              gap: isMobile ? 24 : 40, alignItems: "flex-start",
+            }}>
+              <div style={{ minWidth: isMobile ? "auto" : 200 }}>
+                <p style={{ fontSize: isMobile ? 18 : 20, fontWeight: 800, color: "#e8edf5", margin: "0 0 6px" }}>{e.role}</p>
+                <p style={{ fontSize: 14, fontWeight: 600, color: "#4a9eff", margin: "0 0 6px" }}>{e.company}</p>
+                <p style={{ fontSize: 12, color: "#6b8aaa", margin: 0 }}>{e.duration}</p>
               </div>
-              <ul style={styles.expPoints}>
+              <ul style={{ listStyle: "none", padding: 0, margin: 0, flex: 1 }}>
                 {e.points.map((pt) => (
-                  <li key={pt} style={styles.expPoint}>
+                  <li key={pt} style={{
+                    fontSize: isMobile ? 13 : 14, color: "#8fa3be", lineHeight: 1.8,
+                    padding: "8px 0 8px 20px", position: "relative",
+                    borderBottom: "1px solid #1a2740",
+                  }}>
                     <span style={{ position: "absolute", left: 0, color: "#4a9eff", fontWeight: 700 }}>›</span>
                     {pt}
                   </li>
@@ -666,43 +472,54 @@ export default function Portfolio() {
         </FadeIn>
       </section>
 
-      {/* CONTACT */}
-      <section id="Contact" style={styles.sectionAlt}>
+      {/* ── CONTACT ── */}
+      <section id="Contact" style={{ padding: `${sectionPy} ${px}`, background: "#0b1220" }}>
         <FadeIn>
-          <p style={styles.sectionLabel}>Say hello 👋</p>
-          <h2 style={styles.sectionTitle}>Get in Touch</h2>
-          <div style={styles.divider} />
-          <div style={styles.contactGrid}>
+          <p style={{ fontSize: 11, fontWeight: 700, color: "#4a9eff", letterSpacing: 4, textTransform: "uppercase", marginBottom: 6 }}>Say hello 👋</p>
+          <h2 style={{ fontSize: isMobile ? "1.7rem" : "2.2rem", fontWeight: 800, color: "#e8edf5", marginBottom: 4 }}>Get in Touch</h2>
+          <div style={{ width: 48, height: 3, background: "#4a9eff", borderRadius: 2, marginBottom: 40 }} />
+
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr",
+            gap: isMobile ? 32 : 48,
+          }}>
             <div>
-              <p style={{ ...styles.aboutText, marginBottom: 32 }}>
+              <p style={{ lineHeight: 1.9, color: "#8fa3be", fontSize: 15, marginBottom: 28 }}>
                 Whether you have a job opening, a project in mind, or just want to have a conversation about backend development — I'd love to hear from you. I usually reply within a day. Drop me an email or reach out on LinkedIn!
               </p>
               <button
-                style={{ ...styles.btnPrimary, fontSize: 15, padding: "14px 36px" }}
+                className="btn"
                 onClick={copyEmail}
+                style={{
+                  background: "#4a9eff", color: "#0f1623", border: "none",
+                  borderRadius: 6, padding: isMobile ? "12px 24px" : "14px 36px",
+                  fontWeight: 700, fontSize: isMobile ? 14 : 15,
+                  cursor: "pointer", transition: "all 0.2s", width: isMobile ? "100%" : "auto",
+                }}
               >
                 {copied ? "✓ Email Copied!" : "Copy Email Address"}
               </button>
             </div>
-            <div style={styles.contactInfo}>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
               {[
-                { icon: "✉️", label: "Email", value: "tirupathinaidu199@gmail.com", href: "mailto:tirupathinaidu199@gmail.com", onClick: () => window.open("mailto:tirupathinaidu199@gmail.com") },
-                { icon: "📞", label: "Phone", value: "+91 6303201364", href: null, onClick: () => window.open("tel:+916303201364") },
-                { icon: "📍", label: "Location", value: "Hyderabad, India", href: null, onClick: null },
-                { icon: "💼", label: "LinkedIn", value: "tirupathinaidu-gullapalli", href: null, onClick: () => window.open("https://www.linkedin.com/in/tirupathinaidu-gullapalli-033b6b3a1", "_blank") },
-                { icon: "🐙", label: "GitHub", value: "naidu449", href: null, onClick: () => window.open("https://github.com/naidu449", "_blank") },
+                { icon: "✉️", label: "Email", value: "tirupathinaidu199@gmail.com", onClick: () => window.open("mailto:tirupathinaidu199@gmail.com") },
+                { icon: "📞", label: "Phone", value: "+91 6303201364", onClick: () => window.open("tel:+916303201364") },
+                { icon: "📍", label: "Location", value: "Hyderabad, India", onClick: null },
+                { icon: "💼", label: "LinkedIn", value: "tirupathinaidu-gullapalli", onClick: () => window.open("https://www.linkedin.com/in/tirupathinaidu-gullapalli-033b6b3a1", "_blank") },
+                { icon: "🐙", label: "GitHub", value: "naidu449", onClick: () => window.open("https://github.com/naidu449", "_blank") },
               ].map((c) => (
-                <div key={c.label} style={styles.contactItem}>
-                  <span style={styles.contactIcon}>{c.icon}</span>
-                  <div>
-                    <p style={styles.contactLabel}>{c.label}</p>
-                    {c.onClick ? (
-                      <span onClick={c.onClick} style={{ ...styles.contactValue, color: "#4a9eff", cursor: "pointer" }}>
-                        {c.value}
-                      </span>
-                    ) : (
-                      <p style={styles.contactValue}>{c.value}</p>
-                    )}
+                <div key={c.label} className="card" style={{
+                  display: "flex", alignItems: "center", gap: 14,
+                  background: "#131e2f", border: "1px solid #1e2d45",
+                  borderRadius: 10, padding: "14px 18px",
+                  cursor: c.onClick ? "pointer" : "default",
+                }} onClick={c.onClick || undefined}>
+                  <span style={{ fontSize: 18, minWidth: 28, textAlign: "center" }}>{c.icon}</span>
+                  <div style={{ overflow: "hidden" }}>
+                    <p style={{ fontSize: 10, color: "#6b8aaa", fontWeight: 700, letterSpacing: 1, textTransform: "uppercase", margin: "0 0 2px" }}>{c.label}</p>
+                    <p style={{ fontSize: 13, color: c.onClick ? "#4a9eff" : "#c5d3e8", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{c.value}</p>
                   </div>
                 </div>
               ))}
@@ -711,16 +528,28 @@ export default function Portfolio() {
         </FadeIn>
       </section>
 
-      {/* FOOTER */}
-      <footer style={styles.footer}>
-        <p>Designed & built by Tirupathinaidu Gullapalli · Hyderabad, India</p>
-        <div style={{ marginTop: 12, display: "flex", justifyContent: "center", gap: 24 }}>
-          <span onClick={() => window.open("https://www.linkedin.com/in/tirupathinaidu-gullapalli-033b6b3a1", "_blank")} style={{ color: "#4a9eff", fontSize: 13, cursor: "pointer" }}>💼 LinkedIn</span>
-          <span onClick={() => window.open("https://github.com/naidu449", "_blank")} style={{ color: "#4a9eff", fontSize: 13, cursor: "pointer" }}>🐙 GitHub</span>
-          <span onClick={() => window.open("mailto:tirupathinaidu199@gmail.com")} style={{ color: "#4a9eff", fontSize: 13, cursor: "pointer" }}>✉️ Email</span>
+      {/* ── FOOTER ── */}
+      <footer style={{
+        textAlign: "center", padding: `28px ${px}`,
+        borderTop: "1px solid #1e2d45", color: "#6b8aaa", fontSize: 13,
+      }}>
+        <p style={{ margin: "0 0 12px" }}>Designed & built by Tirupathinaidu Gullapalli · Hyderabad, India</p>
+        <div style={{ display: "flex", justifyContent: "center", flexWrap: "wrap", gap: 20, marginBottom: 12 }}>
+          {[
+            { label: "💼 LinkedIn", url: "https://www.linkedin.com/in/tirupathinaidu-gullapalli-033b6b3a1" },
+            { label: "🐙 GitHub", url: "https://github.com/naidu449" },
+            { label: "✉️ Email", url: "mailto:tirupathinaidu199@gmail.com" },
+          ].map(({ label, url }) => (
+            <span
+              key={label}
+              onClick={() => window.open(url, "_blank")}
+              style={{ color: "#4a9eff", cursor: "pointer", fontSize: 13 }}
+            >{label}</span>
+          ))}
         </div>
-        <p style={{ marginTop: 12, color: "#3a5070" }}>Built with React</p>
+        <p style={{ margin: 0, color: "#3a5070", fontSize: 12 }}>Built with React</p>
       </footer>
+
     </div>
   );
 }
